@@ -10,7 +10,7 @@ import { getSession } from "../../services/auth";
 
 const ImportarModal = ({ show, handleShow }) => {
     const [semestre, setSemestre] = useState(0);
-    const [anosSemestre, setAnosSemestre] = useState(new Date().getFullYear());
+    const [anosSemestre, setAnosSemestre] = useState([]);
     const [anoSemestre, setAnoSemestre] = useState(new Date().getFullYear());
     const [file, setFile] = useState({});
     const [data, setData] = useState([]);
@@ -122,7 +122,7 @@ const ImportarModal = ({ show, handleShow }) => {
                                 })}
                             </select>
                         </div>
-                        <div className="col-6">
+                        <div className="col-4">
                             <div className="form-group">
                                 <input type="file" className="form-control-file" id="file" onChange={handleChange} />
                             </div>
