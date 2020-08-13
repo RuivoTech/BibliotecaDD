@@ -67,7 +67,7 @@ const FormModal = ({ show, handleShow, data }) => {
         setRetirada({
             ...retirada,
             livro: item.nome,
-            id_livroRetirada: item.id_livro
+            chEsLivro: item.id_livro
         });
     }
 
@@ -85,11 +85,7 @@ const FormModal = ({ show, handleShow, data }) => {
             }
         }
         try {
-            if (retirada.id_retirada > 0) {
-                request = await api.put("retiradas", retirada, opcoes)
-            } else {
-                request = await api.post("retiradas", { retirada, livros_retirada: livrosRetirada }, opcoes);
-            }
+            request = await api.put("/importarRetirada", retirada, opcoes)
 
             if (request.data.error) {
                 setRetorno({
@@ -104,7 +100,7 @@ const FormModal = ({ show, handleShow, data }) => {
                 setRetirada({
                     ra: "",
                     nome: "",
-                    cusr: "",
+                    curso: "",
                     semestre: "",
                     data_retirada: ""
                 });
@@ -133,12 +129,12 @@ const FormModal = ({ show, handleShow, data }) => {
                     <div className="row">
                         <div className="col-sm-2 col-lg-2">
                             <div className="form-group">
-                                <label htmlFor="id_retirada">ID:</label>
+                                <label htmlFor="id">ID:</label>
                                 <input
                                     className="form-control"
-                                    type="text" id="id_retirada"
-                                    name="id_retirada"
-                                    value={retirada.id_retirada}
+                                    type="text" id="id"
+                                    name="id"
+                                    value={retirada.id}
                                     onChange={handleChange}
                                     disabled
                                 />
@@ -178,20 +174,7 @@ const FormModal = ({ show, handleShow, data }) => {
                                     onChange={handleChange} />
                             </div>
                         </div>
-                        <div className="col-sm-4 col-lg-4">
-                            <div className="form-group">
-                                <label htmlFor="data_retirada">Data Retirada:</label>
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    id="data_retirada"
-                                    name="data_retirada"
-                                    value={retirada.data_retirada}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-                        {!data.id_retirada ?
+                        {!data.id ?
                             <>
                                 <div className="col-sm-8 col-md-8 col-lg-8 my-4">
                                     <label htmlFor="livros">Adicionar livro:</label>
@@ -203,7 +186,7 @@ const FormModal = ({ show, handleShow, data }) => {
                                     <Tabela data={livrosRetirada} maxHeight="20vh">
                                         <Coluna campo="nome" titulo="Nome" tamanho="7" />
                                         <Coluna campo="autor" titulo="Autor" tamanho="7" />
-                                        <Coluna campo="id_livro" titulo="Opções" tamanho="2" corpo={(item) => renderOpcoes(item)} />
+                                        <Coluna campo="chEsLivro" titulo="Opções" tamanho="2" corpo={(item) => renderOpcoes(item)} />
                                     </Tabela>
                                 </div>
                             </> :
@@ -216,9 +199,16 @@ const FormModal = ({ show, handleShow, data }) => {
                                 </div>
                                 <div className="col-sm-2 col-md-2 col-lg-2">
                                     <div className="form-group">
-                                        <label htmlFor="id_livroRetirada">ID:</label>
-                                        <input className="form-control" type="text" id="id_livroRetirada" name="id_livroRetirada" value={retirada?.id_livroRetirada}
-                                            onChange={handleChange} disabled />
+                                        <label htmlFor="chEsLivro">ID:</label>
+                                        <input
+                                            className="form-control"
+                                            type="text"
+                                            id="chEsLivro"
+                                            name="chEsLivro"
+                                            value={retirada?.chEsLivro}
+                                            onChange={handleChange}
+                                            disabled
+                                        />
                                     </div>
                                 </div>
                             </>
@@ -248,7 +238,10 @@ const FormModal = ({ show, handleShow, data }) => {
                             </p>
                         </div>}
                     {retorno &&
-                        <div className={"bg-" + retorno.className + " align-middle rounded"} style={{ minWidth: "30em", left: "1em", position: "absolute" }}>
+                        <div
+                            className={"bg-" + retorno.className + " align-middle rounded"}
+                            style={{ minWidth: "30em", left: "1em", position: "absolute" }}
+                        >
                             <p className="text-white px-2 align-middle" style={{ fontSize: 20 }}>
                                 {retorno.mensagem}
                             </p>

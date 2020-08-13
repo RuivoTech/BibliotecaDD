@@ -13,25 +13,36 @@ interface Retirada {
     nome: string,
     curso: string,
     livro: string,
-    semestre: number
+    semestre: number,
+    data_retirada: string,
+    id_livroRetirada: number,
+    alteradoPor: string,
+    dataAlterado: string
 }
 
 interface Importacao {
-    ra: number,
+    id?: number,
+    ra: string,
     curso: string,
     semestre: number,
     chEsLivro: number,
     nome: string,
     criadoPor: string,
     dataCriado: string,
-    alteradPor: string,
+    alteradoPor: string,
     dataAlterado: string
 }
 
 class ImportacaoController {
     async index(request: Request, response: Response) {
         try {
+            const { semestre, anoSemestre } = request.query;
+
             const retiradas = await knex('retiradas_importadas as r')
+                .where({
+                    semestre,
+                    anoSemestre
+                })
                 .join('livro as l', 'r.chEsLivro', 'l.id_livro')
                 .select(
                     "r.id",
@@ -88,6 +99,96 @@ class ImportacaoController {
             return response.json(error)
         }
 
+    }
+
+    async updateOne(request: Request, response: Response) {
+        const {
+            id,
+            ra,
+            nome,
+            curso,
+            semestre,
+            chEsLivro,
+            criadoPor,
+            dataCriado
+        } = request.body;
+        let data = new Date()
+        try {
+            const usuario = await usuariosController.getUsuario(String(request.headers.authorization));
+
+            const retirada: Importacao = {
+                id,
+                ra,
+                nome,
+                curso,
+                semestre,
+                chEsLivro,
+                criadoPor,
+                dataCriado,
+                alteradoPor: String(usuario?.nome),
+                dataAlterado: String(data.getFullYear() + "-" + data.getMonth() + "-" + data.getDate())
+            };
+
+            await knex('retiradas_importadas').update(retirada).where({ id });
+
+            return response.json(retirada);
+        } catch (error) {
+            return response.json({ error: error })
+        }
+
+    }
+
+    async update(request: Request, response: Response) {
+        const ids = request.body;
+
+        let data = new Date();
+
+        try {
+            const usuario = await usuariosController.getUsuario(String(request.headers.authorization));
+
+            const retiradasImportadas = await knex<Importacao>("retiradas_importadas").whereIn("id", ids);
+
+            const retiradasInserir = retiradasImportadas.map(retirada => {
+                return {
+                    ra: retirada.ra.replace("-", ""),
+                    curso: retirada.curso,
+                    semestre: retirada.semestre,
+                    id_livroRetirada: retirada.chEsLivro,
+                    data_retirada: String(data.getFullYear() + "-" + data.getMonth() + "-" + data.getDate()),
+                    nome: retirada.nome,
+                    criadoPor: retirada.criadoPor,
+                    dataCriado: retirada.dataCriado,
+                    alteradoPor: usuario?.nome,
+                    dataAlterado: String(data.getFullYear() + "-" + data.getMonth() + "-" + data.getDate())
+                }
+            });
+
+            await knex("retirada").insert(retiradasInserir).then(async response => {
+                await knex("retiradas_importadas")
+                    .delete()
+                    .whereIn("id", ids);
+            });
+
+            return response.json(retiradasInserir);
+        } catch (error) {
+            return response.json({ error: error })
+        }
+
+    }
+
+    async delete(request: Request, response: Response) {
+        try {
+            const ids = request.body;
+            console.log(ids);
+
+            /*await knex("retiradas_importadas")
+                .delete()
+                .whereIn("id", ids);*/
+
+            return response.json({ mensagem: "Retiradas removidas com sucesso!" });
+        } catch (error) {
+            return response.json({ error });
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react"
 import { Page, Text, View, Document, StyleSheet, PDFViewer, Image } from '@react-pdf/renderer';
-import { useParams } from "react-router-dom";
 import { getSession } from "../../services/auth";
 import api from "../../services/api";
 

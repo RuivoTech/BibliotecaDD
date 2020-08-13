@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 
 import api from "../../services/api";
 import FormModal from "./FormModal";
@@ -6,8 +6,6 @@ import RelatorioModal from "./RelatorioModal";
 import { getSession } from "../../services/auth";
 import Tabela from "../../components/Tabela";
 import Coluna from "../../components/Coluna";
-import ImportarModal from "./ImportarModal";
-import { AuthContext } from "../../context";
 
 const Retiradas = () => {
     const [retiradas, setRetiradas] = useState([]);
@@ -15,11 +13,9 @@ const Retiradas = () => {
     const [pesquisa, setPesquisa] = useState("");
     const [show, setShow] = useState(false);
     const [showRelatorio, setShowRelatorio] = useState(false);
-    const [showImportar, setShowImportar] = useState(false);
     const [retiradaSelecionada, setRetiradaSelecionada] = useState({});
     const [mensagem, setMensagem] = useState("");
     const [className, setClassName] = useState("");
-    const { isAdmin } = useContext(AuthContext);
 
     useEffect(() => {
         const requisicao = async () => {
@@ -85,16 +81,11 @@ const Retiradas = () => {
         )
     }
 
-    const handleShowImportar = () => {
-        setShowImportar(!showImportar);
-    }
-
     return (
         <>
             <nav className="navbar navbar-expand-lg">
                 <ul className="navbar-nav mr-auto">
                     <button className="btn btn-info mr-2" onClick={() => setShowRelatorio(!showRelatorio)}>Gerar Relatório</button>
-                    {isAdmin() && <button className="btn btn-primary ml-2" onClick={() => handleShowImportar()}>Importar Retiradas</button>}
                 </ul>
 
                 <input
@@ -133,7 +124,6 @@ const Retiradas = () => {
             </div>
             <FormModal show={show} handleShow={handleShow} data={retiradaSelecionada} />
             <RelatorioModal show={showRelatorio} handleShow={() => setShowRelatorio(!showRelatorio)} />
-            <ImportarModal show={showImportar} handleShow={handleShowImportar} />
         </>
     )
 }

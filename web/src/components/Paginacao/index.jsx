@@ -16,7 +16,7 @@ const range = (from, to, step = 1) => {
     return range;
 }
 
-const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 1 }) => {
+const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 3 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageLimit = limiteItems;
     const totalRecords = data.length;
@@ -24,6 +24,7 @@ const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 
     const [paginas, setPaginas] = useState([]);
     const [counter, setCounter] = useState(0);
     const [delimiter, setDelimiter] = useState(0);
+    const [pageInput, setPageInput] = useState("");
 
     const fetchPageNumbers = () => {
         /**
@@ -80,6 +81,7 @@ const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 
     }
 
     useEffect(() => {
+        fetchPageNumbers();
         gotoPage(1);
     }, [data]);
 
@@ -99,6 +101,14 @@ const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 
         setCurrentPage(currentPage);
 
         renderItems(paginationData);
+    }
+
+    const handleChangePage = (event) => {
+        if (event.key === "Enter") {
+            gotoPage(pageInput ? pageInput : 1);
+        } else {
+            setPageInput(event.target.value);
+        }
     }
 
     if (!totalRecords || totalPages === 1) return null;
@@ -142,6 +152,13 @@ const Paginacao = ({ data = [], renderItems, limiteItems = 20, pageNeighbours = 
 
                         })}
 
+                        {totalPages > limiteItems &&
+                            <input type="text" onKeyUp={handleChangePage} style={{
+                                width: "4vw",
+                                marginLeft: "5px"
+                            }}
+                                title='Digite uma página e aperte "Enter"'
+                            />}
                     </ul>
                 </div>
             </>

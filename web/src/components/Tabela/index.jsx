@@ -50,8 +50,8 @@ const Tabela = ({ titulo, tituloBotao, mostrarBotaoNovo, data, handleShow, heigh
                                 <table className="table table-sm table-striped table-hover" style={maxHeight ? { maxHeight } : { maxHeight: "52vh" }}>
                                     <thead className="thead-light">
                                         <tr role="row">
-                                            {children.map((child) => {
-                                                return (<td key={child.props.titulo} style={{ width: child.props.tamanho + "vw" }}>{child.props.titulo}</td>)
+                                            {children.map((child, index) => {
+                                                return (<td key={index} style={{ width: child.props.tamanho + "vw" }}>{child.props.titulo}</td>)
                                             })}
                                         </tr>
                                     </thead>

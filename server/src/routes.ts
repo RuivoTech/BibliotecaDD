@@ -44,7 +44,13 @@ routes.put('/usuarios', usuariosController.update);
 routes.put("/usuarios/:id", usuariosController.updatePerfil);
 routes.delete("/usuarios/:id", usuariosController.delete);
 
-routes.get("/importacoes", importacaoController.index);
-routes.post("/importarRetirada", importacaoController.create);
+routes.route("/importacoes")
+    .get(importacaoController.index)
+    .put(importacaoController.update)
+    .delete(importacaoController.delete);
+
+routes.route("/importarRetirada")
+    .post(importacaoController.create)
+    .put(importacaoController.updateOne);
 
 export default routes;
