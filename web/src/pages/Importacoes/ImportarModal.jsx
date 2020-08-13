@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { useState } from "react";
 import XLSX from 'xlsx';
@@ -10,10 +10,20 @@ import { getSession } from "../../services/auth";
 
 const ImportarModal = ({ show, handleShow }) => {
     const [semestre, setSemestre] = useState(0);
+    const [anosSemestre, setAnosSemestre] = useState(new Date().getFullYear());
+    const [anoSemestre, setAnoSemestre] = useState(new Date().getFullYear());
     const [file, setFile] = useState({});
     const [data, setData] = useState([]);
     const [carregando, setCarregando] = useState(false);
     const [retorno, setRetorno] = useState({});
+
+    useEffect(() => {
+        const anoInicial = new Date().getFullYear() - 6;
+        const anoFinal = new Date().getFullYear() + 5;
+        const anos = Array(anoFinal - anoInicial).fill('').map((v, idx) => anoFinal - idx);
+
+        setAnosSemestre(anos);
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -35,6 +45,7 @@ const ImportarModal = ({ show, handleShow }) => {
                 nome: retirada.nome,
                 curso: retirada.curso,
                 semestre,
+                anoSemestre,
                 livro: retirada.livro
             } : null
         });
@@ -97,6 +108,18 @@ const ImportarModal = ({ show, handleShow }) => {
                                 <option value="0">Semestre...</option>
                                 <option value="1">01</option>
                                 <option value="2">02</option>
+                            </select>
+                        </div>
+                        <div className="col-2">
+                            <select
+                                className="custom-select"
+                                name="anoSemestre"
+                                value={anoSemestre}
+                                onChange={e => setAnoSemestre(e.target.value)}
+                            >
+                                {anosSemestre.map((anoSemestre, index) => {
+                                    return <option key={index} value={anoSemestre}>{anoSemestre}</option>
+                                })}
                             </select>
                         </div>
                         <div className="col-6">
