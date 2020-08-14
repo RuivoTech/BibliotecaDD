@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { useState } from "react";
 import XLSX from 'xlsx';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 
 import api from "../../services/api";
 import Tabela from "../../components/Tabela";
@@ -16,6 +18,7 @@ const ImportarModal = ({ show, handleShow }) => {
     const [data, setData] = useState([]);
     const [carregando, setCarregando] = useState(false);
     const [retorno, setRetorno] = useState({});
+    const [retiradasSemLivro, setRetiradasSemLivro] = useState(false);
 
     useEffect(() => {
         const anoInicial = new Date().getFullYear() - 6;
@@ -57,9 +60,12 @@ const ImportarModal = ({ show, handleShow }) => {
         })
             .then(response => {
                 setRetorno({
-                    mensagem: response.data.mensagem,
+                    mensagem: "Retiradas importadas com sucesso.",
                     className: "success"
                 });
+
+                setData(response.data);
+                setRetiradasSemLivro(true);
                 setCarregando(false);
             }).catch(error => {
                 setCarregando(false);
@@ -97,10 +103,34 @@ const ImportarModal = ({ show, handleShow }) => {
         setCarregando(false);
     }
 
+    const selecionarClassName = (item) => {
+        return retiradasSemLivro ? "table-warning" : "table-light";
+    }
+
+    const renderAlerta = (item) => {
+        return (
+            <>
+                {retiradasSemLivro &&
+                    <>
+                        <FontAwesomeIcon
+                            icon={faQuestionCircle}
+                            color="red"
+                            title="Não foi encontrado o livro para salvar esta retirada."
+                        />
+                        {" "}
+                    </>
+                }
+                {item.ra}
+            </>
+        )
+    }
+
     return (
         <>
             <Modal isOpen={show} toggle={handleShow} className="modal-xl">
-                <ModalHeader toggle={handleShow}>Importar Retiradas</ModalHeader>
+                <ModalHeader toggle={handleShow}>
+                    Importar Retiradas
+                </ModalHeader>
                 <ModalBody>
                     <div className="row">
                         <div className="col-2">
@@ -140,11 +170,11 @@ const ImportarModal = ({ show, handleShow }) => {
                     </div>
                     <div className="row">
                         <div className="col-12">
-                            <Tabela data={data} titulo="Retiradas Importadas">
-                                <Coluna campo="ra" titulo="RA" />
-                                <Coluna campo="nome" titulo="Aluno" />
-                                <Coluna campo="curso" titulo="Curso" />
-                                <Coluna campo="livro" titulo="Livro" />
+                            <Tabela data={data} titulo="Retiradas Importadas" corLinha={(item) => selecionarClassName(item)}>
+                                <Coluna campo="ra" titulo="RA" tamanho="3" corpo={(item) => renderAlerta(item)} />
+                                <Coluna campo="nome" titulo="Aluno" tamanho="10" />
+                                <Coluna campo="curso" titulo="Curso" tamanho="4" />
+                                <Coluna campo="livro" titulo="Livro" tamanho="10" />
                             </Tabela>
                         </div>
                     </div>

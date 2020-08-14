@@ -96,7 +96,13 @@ class ImportacaoController {
 
             await knex("retiradas_importadas").insert(retiradasParaSalvar).timeout(60000);
 
-            return response.json({ mensagem: "Retiradas importadas com sucesso!" });
+            const retiradasSemLivro = retiradas.filter((retirada: Retirada) => {
+                const livro = livros.filter(livro => livro.nome.toLowerCase() === retirada.livro.toLowerCase());
+
+                return !livro[0] && retirada;
+            });
+
+            return response.json(retiradasSemLivro);
         } catch (error) {
             return response.json(error)
         }
@@ -147,10 +153,14 @@ class ImportacaoController {
 
         try {
             const usuario = await usuariosController.getUsuario(String(request.headers.authorization));
+            const livros = await knex("livro")
+                .select("id_livro", "quantidade", "nome");
 
             const retiradasImportadas = await knex<Importacao>("retiradas_importadas").whereIn("id", ids);
 
             const retiradasInserir = retiradasImportadas.map(retirada => {
+                const livroSelecionado = livros.filter(livro => livro.id_livro === retirada.chEsLivro && livro.quantidade > 0);
+
                 return {
                     ra: retirada.ra.replace("-", ""),
                     curso: retirada.curso,
@@ -181,11 +191,10 @@ class ImportacaoController {
     async delete(request: Request, response: Response) {
         try {
             const ids = request.body;
-            console.log(ids);
 
-            /*await knex("retiradas_importadas")
+            await knex("retiradas_importadas")
                 .delete()
-                .whereIn("id", ids);*/
+                .whereIn("id", ids);
 
             return response.json({ mensagem: "Retiradas removidas com sucesso!" });
         } catch (error) {

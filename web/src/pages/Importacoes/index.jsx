@@ -107,6 +107,29 @@ const Importacoes = () => {
         }
     }
 
+    const handleDelete = async () => {
+        const response = await api.delete("/importacoes", {
+            data: itemsRetirar,
+            headers: {
+                Authorization: `Bearer ${token.token}`
+            }
+        });
+
+        if (!response.data.error) {
+            const items = retiradas.filter(retirada => !itemsRetirar.includes(retirada.id));
+
+            setRetiradas(items);
+            setRetiradasFiltradas(items);
+            setItemsRetirar([]);
+
+            setMensagem("Retirada removida com sucesso.");
+            setClassName("bg-success");
+        } else {
+            setMensagem(response.data.error);
+            setClassName("bg-danger");
+        }
+    }
+
     const handleCheck = (id) => {
         const itemsExistem = itemsRetirar.findIndex(item => item === id);
 
@@ -133,7 +156,7 @@ const Importacoes = () => {
             type="checkbox"
             value={item.id}
             onChange={() => handleCheck(item.id)}
-            title={`Selecionar para retirar -> ${item.id} - ${item.nome}`}
+            title={`Selecionar para Retirar/Remover -> ${item.id} - ${item.nome}`}
             checked={itemsRetirar.includes(item.id)}
         />
     }
@@ -211,12 +234,15 @@ const Importacoes = () => {
                             data={retiradasFiltradas}
                             titulo="Retiradas importadas"
                             tituloBotao="Salvar"
-                            mostrarBotaoNovo={retiradas.length}
+                            mostrarBotaoNovo={retiradas.length > 0 ? true : false}
+                            tituloSegundoBotao="Remover"
+                            mostrarSegundoBotao={retiradas.length > 0 ? true : false}
+                            handleClick={handleDelete}
                             handleShow={handleSave}
                         >
                             <Coluna
                                 campo="id"
-                                titulo={<input type="checkbox" onChange={handleCheckAll} title="Selecionar todos para retirar" />}
+                                titulo={<input type="checkbox" onChange={handleCheckAll} title="Selecionar todos para Retirar/Remover" />}
                                 tamanho="2"
                                 corpo={(item) => renderSelectedItems(item)}
                             />

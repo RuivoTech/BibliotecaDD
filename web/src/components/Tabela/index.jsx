@@ -4,7 +4,20 @@ import Paginacao from "../Paginacao";
 
 import "./styles.css";
 
-const Tabela = ({ titulo, tituloBotao, mostrarBotaoNovo, data, handleShow, height, corLinha, maxHeight, children = [] }) => {
+const Tabela = ({
+    titulo,
+    tituloSegundoBotao,
+    mostrarSegundoBotao,
+    tituloBotao,
+    mostrarBotaoNovo,
+    handleClick,
+    data,
+    handleShow,
+    height,
+    corLinha,
+    maxHeight,
+    children = []
+}) => {
     const [items, setItems] = useState([]);
 
     const renderValor = (campo, item) => {
@@ -31,7 +44,17 @@ const Tabela = ({ titulo, tituloBotao, mostrarBotaoNovo, data, handleShow, heigh
                     <div className="ibox-title">
                         <div className="h1 pull-left">{titulo}</div>
                         <div className="ibox-tools">
-                            {mostrarBotaoNovo ?
+                            {mostrarSegundoBotao &&
+                                <div className="button-group">
+                                    <button
+                                        className="btn btn-outline-danger"
+                                        type="button"
+                                        title={tituloBotao}
+                                        onClick={() => handleClick({})}>
+                                        {tituloSegundoBotao}
+                                    </button>
+                                </div>}{' '}
+                            {mostrarBotaoNovo &&
                                 <div className="button-group">
                                     <button
                                         className="btn btn-outline-primary"
@@ -39,8 +62,8 @@ const Tabela = ({ titulo, tituloBotao, mostrarBotaoNovo, data, handleShow, heigh
                                         title={tituloBotao}
                                         onClick={() => handleShow({})}>
                                         {tituloBotao}
-                                    </button>&nbsp;
-                        </div> : null}
+                                    </button>
+                                </div>}
                         </div>
                     </div>}
                 <div className="ibox-content">
@@ -51,7 +74,14 @@ const Tabela = ({ titulo, tituloBotao, mostrarBotaoNovo, data, handleShow, heigh
                                     <thead className="thead-light">
                                         <tr role="row">
                                             {children.map((child, index) => {
-                                                return (<td key={index} style={{ width: child.props.tamanho + "vw" }}>{child.props.titulo}</td>)
+                                                return (
+                                                    <td
+                                                        key={index}
+                                                        style={{ width: child.props.tamanho + "vw" }}
+                                                    >
+                                                        {child.props.titulo}
+                                                    </td>
+                                                )
                                             })}
                                         </tr>
                                     </thead>
