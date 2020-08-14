@@ -14,6 +14,7 @@ const FormModal = ({ show, handleShow, data }) => {
     const [livrosRetirada, setLivrosRetirada] = useState([]);
     const [livros, setLivros] = useState([]);
     const [retorno, setRetorno] = useState({});
+    const [showRetorno, setShowRetorno] = useState(false);
 
     useEffect(() => {
         setRetirada(data);
@@ -39,9 +40,10 @@ const FormModal = ({ show, handleShow, data }) => {
 
     useEffect(() => {
         setTimeout(() => {
-            setRetorno({})
+            setRetorno({});
+            setShowRetorno(false);
         }, 5000);
-    }, [retorno])
+    }, [showRetorno]);
 
     const handleChange = event => {
         setRetirada({
@@ -52,13 +54,43 @@ const FormModal = ({ show, handleShow, data }) => {
 
     const handleClick = (item) => {
         const livroRetirada = livrosRetirada.findIndex(livro => livro.id_livro === item.id_livro);
+        const quantidadeLivro = livros.filter(livro => livro.id_livro === item.id_livro);
+        console.log(quantidadeLivro);
+        if (quantidadeLivro[0].quantidade === 0) {
+            setRetorno({
+                mensagem: "Não temos mais estoque deste livro.",
+                className: "warning"
+            });
+
+            setShowRetorno(true);
+
+            return;
+        }
 
         if (livroRetirada >= 0) {
             const livrosFiltrados = livrosRetirada.filter(livro => livro.id_livro !== item.id_livro);
 
             setLivrosRetirada(livrosFiltrados);
+
+            const livrosFiltradosAdd = livros.map(livro => {
+                return livro.id_livro === item.id_livro ? {
+                    ...livro,
+                    quantidade: (livro.quantidade + 1)
+                } : livro
+            });
+            console.log(livrosFiltradosAdd);
+            setLivros(livrosFiltradosAdd);
         } else {
-            setLivrosRetirada([...livrosRetirada, item])
+            setLivrosRetirada([...livrosRetirada, item]);
+
+            const livrosFiltradosRemove = livros.map(livro => {
+                return livro.id_livro === item.id_livro ? {
+                    ...livro,
+                    quantidade: (livro.quantidade - 1)
+                } : livro
+            });
+            console.log(livrosFiltradosRemove);
+            setLivros(livrosFiltradosRemove);
         }
         setValue("");
     }
@@ -69,6 +101,15 @@ const FormModal = ({ show, handleShow, data }) => {
             livro: item.nome,
             id_livroRetirada: item.id_livro
         });
+
+        const livrosFiltrados = livros.map(livro => {
+            return livro.id_livro === item.id_livro && {
+                ...livro,
+                quantidade: livro.quantidade - 1
+            }
+        });
+
+        setLivros(livrosFiltrados);
     }
 
     const handleValue = event => {
@@ -96,11 +137,13 @@ const FormModal = ({ show, handleShow, data }) => {
                     mensagem: request.data.error,
                     className: "danger"
                 });
+                setShowRetorno(true);
             } else {
                 setRetorno({
                     mensagem: "Retirada cadastrada com sucesso",
                     className: "success"
                 });
+                setShowRetorno(true);
                 setRetirada({
                     ra: "",
                     nome: "",
@@ -113,10 +156,6 @@ const FormModal = ({ show, handleShow, data }) => {
         } catch (erro) {
             console.log(erro);
         }
-
-        setTimeout(() => {
-            setRetorno({});
-        }, 5000);
     }
 
     const renderOpcoes = (item) => {
@@ -247,7 +286,7 @@ const FormModal = ({ show, handleShow, data }) => {
                                 </span>
                             </p>
                         </div>}
-                    {retorno &&
+                    {showRetorno &&
                         <div className={"bg-" + retorno.className + " align-middle rounded"} style={{ minWidth: "30em", left: "1em", position: "absolute" }}>
                             <p className="text-white px-2 align-middle" style={{ fontSize: 20 }}>
                                 {retorno.mensagem}
